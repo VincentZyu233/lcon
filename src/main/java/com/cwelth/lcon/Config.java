@@ -13,6 +13,7 @@ public class Config {
     public static final String CATEGORY_MAIN = "main";
     public static ForgeConfigSpec.BooleanValue ENABLE_MOD;
     public static ForgeConfigSpec.IntValue PORT;
+    public static ForgeConfigSpec.ConfigValue<String> TOKEN;
     private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
     public static ForgeConfigSpec CLIENT_CONFIG;
 
@@ -22,6 +23,7 @@ public class Config {
         CLIENT_BUILDER.comment("Main config").push(CATEGORY_MAIN);
         ENABLE_MOD = CLIENT_BUILDER.comment("Is the mod available at all?").define("enable_mod", true);
         PORT = CLIENT_BUILDER.comment("Port to listen on. Default 8115.").defineInRange("port", 8115, 1024, 65535);
+        TOKEN = CLIENT_BUILDER.comment("Authentication token. Clients must pass ?token=xxx when connecting. Leave empty to disable.").define("token", "");
         CLIENT_BUILDER.pop();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
     }

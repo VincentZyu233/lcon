@@ -5,6 +5,7 @@ import com.netiq.websocket.WebSocket;
 import com.netiq.websocket.WebSocketServer;
 
  */
+import com.cwelth.lcon.Config;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -12,7 +13,6 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class WSSListener extends WebSocketServer {
@@ -31,6 +31,15 @@ public class WSSListener extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
+        String configuredToken = Config.TOKEN.get();
+        if (!configuredToken.isEmpty()) {
+            String token = extractQueryParam(clientHandshake.getResourceDescriptor(), "token");
+            if (!configuredToken.equals(token)) {
+                webSocket.send("401:Unauthorized - invalid token.");
+                webSocket.close();
+                return;
+            }
+        }
         webSocket.send("200:Welcome to LCon! Have fun! Don't forget to use prefixes with every message you send to me.");
         webSocket.send("200:Valid prefixes:");
         webSocket.send("200:[chat] - send message to Minecraft chat.");
@@ -39,6 +48,16 @@ public class WSSListener extends WebSocketServer {
         webSocket.send("200:[client] - execute client-side command.");
         webSocket.send("200:[server] - execute server-side command.");
         webSocket.send("201:ready.");
+    }
+
+    private static String extractQueryParam(String uri, String param) {
+        if (uri == null || !uri.contains("?")) return "";
+        String query = uri.substring(uri.indexOf("?") + 1);
+        for (String pair : query.split("&")) {
+            String[] kv = pair.split("=", 2);
+            if (kv.length == 2 && kv[0].equals(param)) return kv[1];
+        }
+        return "";
     }
 
     @Override
