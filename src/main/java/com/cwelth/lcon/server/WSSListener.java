@@ -6,8 +6,11 @@ import com.netiq.websocket.WebSocketServer;
 
  */
 import com.cwelth.lcon.Config;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.client.ClientCommandHandler;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -99,10 +102,20 @@ public class WSSListener extends WebSocketServer {
         }
         if(s.startsWith("[server]"))
         {
-            // Server Command
+            // Server Command (bypass player permission, use configured OP level)
             clearMessage = s.substring(8);
             if(clearMessage.startsWith("/")) clearMessage = clearMessage.substring(1);
-            player.connection.sendCommand(clearMessage);
+            MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
+            if (server != null) {
+                ServerPlayer serverPlayer = server.getPlayerList().getPlayer(player.getUUID());
+                if (serverPlayer != null) {
+                    int level = Config.COMMAND_PERMISSION_LEVEL.get();
+                    server.getCommands().performPrefixedCommand(
+                        serverPlayer.createCommandSourceStack().withPermission(level),
+                        clearMessage
+                    );
+                }
+            }
             return;
         }
         webSocket.send("400:Error! Send message prefix first! [chat], [message], [system], [client], [server] are valid prefixes.");

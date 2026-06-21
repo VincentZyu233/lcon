@@ -6,7 +6,7 @@ from .console import ConsoleTab
 from .commands import CommandsTab
 from .settings import SettingsTab
 from .about import AboutTab
-from ..ws_client import WSClient
+from wsclient import WSClient
 
 
 class LConApp(App):
@@ -16,11 +16,18 @@ class LConApp(App):
         Binding("ctrl+tab", "next_tab", "Next Tab"),
     ]
 
-    def __init__(self, host="localhost", port=58115, token="your_secret_token"):
+    def __init__(
+        self,
+        host="localhost",
+        port=58115,
+        token="your_secret_token",
+        mod_version="unknown",
+    ):
         super().__init__()
         self._default_host = host
         self._default_port = port
         self._default_token = token
+        self._mod_version = mod_version
         self.ws: WSClient | None = None
 
     def compose(self):
@@ -43,7 +50,7 @@ class LConApp(App):
         )
 
     def on_mount(self):
-        self.call_from_thread(self._update_settings_fields)
+        self._update_settings_fields()
         self.ws = WSClient(
             host=self._default_host,
             port=self._default_port,

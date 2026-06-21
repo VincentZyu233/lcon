@@ -1,33 +1,11 @@
 from textual.widgets import Input, Button, Static
 from textual.containers import Vertical, Horizontal
 from textual.widget import Widget
+from .css import load_css
 
 
 class SettingsTab(Widget):
-    DEFAULT_CSS = """
-    SettingsTab {
-        height: 1fr;
-        padding: 1;
-    }
-    #settings-title {
-        margin-bottom: 1;
-    }
-    Input {
-        margin-bottom: 1;
-    }
-    #settings-buttons Horizontal {
-        height: auto;
-    }
-    #connect {
-        width: 1fr;
-    }
-    #disconnect {
-        width: 1fr;
-    }
-    #status {
-        margin-top: 1;
-    }
-    """
+    DEFAULT_CSS = load_css("settings")
 
     def compose(self):
         yield Static("[bold]Connection Settings[/bold]", id="settings-title")

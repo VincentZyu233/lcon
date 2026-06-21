@@ -1,10 +1,22 @@
 from textual.widgets import Markdown
 from textual.containers import Vertical
 from textual.widget import Widget
+from .css import load_css
 
-ABOUT_MD = """# LCon
 
-**Version:** 1.0.3
+class AboutTab(Widget):
+    DEFAULT_CSS = load_css("about")
+
+    def compose(self):
+        with Vertical():
+            yield Markdown()
+
+    def on_mount(self):
+        version = getattr(self.app, "_mod_version", "unknown")
+        md = self.query_one(Markdown)
+        md.update(f"""# LCon
+
+**Version:** {version}
 
 WebSocket remote control for Minecraft client.
 
@@ -15,20 +27,4 @@ A Forge mod that runs a WebSocket server on the Minecraft **client** (single-pla
 **Repository:** [github.com/VincentZyu233/lcon](https://github.com/VincentZyu233/lcon)
 
 **Original Author:** [ZigTheHedge](https://github.com/ZigTheHedge)
-"""
-
-
-class AboutTab(Widget):
-    DEFAULT_CSS = """
-    AboutTab {
-        height: 1fr;
-        padding: 1;
-    }
-    Markdown {
-        height: auto;
-    }
-    """
-
-    def compose(self):
-        with Vertical():
-            yield Markdown(ABOUT_MD)
+""")

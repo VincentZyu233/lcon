@@ -1,20 +1,10 @@
 from textual.widgets import Static, DataTable
 from textual.widget import Widget
+from .css import load_css
 
 
 class CommandsTab(Widget):
-    DEFAULT_CSS = """
-    CommandsTab {
-        height: 1fr;
-        padding: 1;
-    }
-    #commands-title {
-        margin-bottom: 1;
-    }
-    DataTable {
-        height: auto;
-    }
-    """
+    DEFAULT_CSS = load_css("commands")
 
     def compose(self):
         yield Static(

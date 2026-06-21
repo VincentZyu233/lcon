@@ -14,6 +14,7 @@ public class Config {
     public static ForgeConfigSpec.BooleanValue ENABLE_MOD;
     public static ForgeConfigSpec.IntValue PORT;
     public static ForgeConfigSpec.ConfigValue<String> TOKEN;
+    public static ForgeConfigSpec.IntValue COMMAND_PERMISSION_LEVEL;
     private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
     public static ForgeConfigSpec CLIENT_CONFIG;
 
@@ -24,6 +25,7 @@ public class Config {
         ENABLE_MOD = CLIENT_BUILDER.comment("Is the mod available at all?").define("enable_mod", true);
         PORT = CLIENT_BUILDER.comment("Port to listen on. Default 58115.").defineInRange("port", 58115, 1024, 65535);
         TOKEN = CLIENT_BUILDER.comment("Authentication token. Clients must pass ?token=xxx when connecting.").define("token", "your_secret_token");
+        COMMAND_PERMISSION_LEVEL = CLIENT_BUILDER.comment("OP level for [server] commands (0-4). Default 4 = full access without enabling cheats.").defineInRange("command_permission_level", 4, 0, 4);
         CLIENT_BUILDER.pop();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
     }

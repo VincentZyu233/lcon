@@ -1,0 +1,46 @@
+ConsoleTab {
+    height: 1fr;
+    layout: vertical;
+}
+
+#log {
+    height: 1fr;
+}
+
+#input-row {
+    height: auto;
+    dock: bottom;
+}
+
+#prefix-label {
+    width: auto;
+    padding: 0 1;
+    background: $surface;
+    color: $text-disabled;
+    text-style: bold;
+    content-align: center middle;
+}
+
+#input {
+    width: 1fr;
+}
+
+#send {
+    width: 12;
+}
+
+#mode-bar {
+    height: 1;
+    dock: bottom;
+    background: $surface;
+    color: $text;
+    padding: 0 1;
+}
+
+#mode-bar.auto-on {
+    color: $success;
+}
+
+#mode-bar.auto-off {
+    color: $warning;
+}

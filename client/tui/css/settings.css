@@ -1,0 +1,28 @@
+SettingsTab {
+    height: 1fr;
+    padding: 1;
+}
+
+#settings-title {
+    margin-bottom: 1;
+}
+
+Input {
+    margin-bottom: 1;
+}
+
+#settings-buttons Horizontal {
+    height: auto;
+}
+
+#connect {
+    width: 1fr;
+}
+
+#disconnect {
+    width: 1fr;
+}
+
+#status {
+    margin-top: 1;
+}

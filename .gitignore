@@ -18,7 +18,7 @@ out/
 bin/
 
 # 🐍 ---- Python ----
-**/__pycache/
+**/__pycache__/
 **/*.pyc/
 **/venv/
 **/.venv/

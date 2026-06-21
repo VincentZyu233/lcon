@@ -8,11 +8,11 @@
 
 [![Download](https://img.shields.io/static/v1?label=Download&message=__VERSION__&color=ED8106&style=for-the-badge&logo=spigotmc&logoColor=white)](https://github.com/__REPO__/releases/tag/__VERSION__)
 
-### 📦 安装
+### 📦 Installation
 
-1. 下载 `.jar` 文件
-2. 放入 `.minecraft/mods/` 目录
-3. 启动游戏
+1. Download the `.jar` file
+2. Place it in `.minecraft/mods/`
+3. Launch the game
 
 ### 📋 Changelog
 
