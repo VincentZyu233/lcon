@@ -1,16 +1,31 @@
+# 📁 ---- Gradle ----
 .gradle/
 build/
+
+# 🎮 ---- Minecraft / Forge ----
 run/
 run-data/
 out/
-*.log
+
+# 📝 ---- IDE & Editor ----
+.idea/
+.vscode/
 *.ipr
 *.iws
 *.iml
-.idea/
-.vscode/
+
+# 🪟 ---- OS files ----
 bin/
+
+# 🐍 ---- Python ----
 **/__pycache/
 **/*.pyc/
 **/venv/
 **/.venv/
+
+# 🗑️ ---- Temp ----
+**/temp/
+**tmp/
+
+# 📋 ---- Logs ----
+*.log

@@ -178,10 +178,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="${{ needs.check.outputs.version }}"
+          MC_VER="${VERSION#v}"
+          MC="${MC_VER%%-*}"
+          RAW="${MC_VER#*-}"
           JAR_FILE=$(ls lcon-*.jar | head -1)
           echo "📤 Uploading: $JAR_FILE"
           gh release create "$VERSION" \
-            --title "LCon ${VERSION}" \
+            --title "LCon for forge ${MC}, v${RAW}" \
             --notes-file release_notes.md \
             --latest \
             "$JAR_FILE"

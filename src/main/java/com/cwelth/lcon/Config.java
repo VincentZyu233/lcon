@@ -22,8 +22,8 @@ public class Config {
         // Main Config
         CLIENT_BUILDER.comment("Main config").push(CATEGORY_MAIN);
         ENABLE_MOD = CLIENT_BUILDER.comment("Is the mod available at all?").define("enable_mod", true);
-        PORT = CLIENT_BUILDER.comment("Port to listen on. Default 8115.").defineInRange("port", 8115, 1024, 65535);
-        TOKEN = CLIENT_BUILDER.comment("Authentication token. Clients must pass ?token=xxx when connecting. Leave empty to disable.").define("token", "");
+        PORT = CLIENT_BUILDER.comment("Port to listen on. Default 58115.").defineInRange("port", 58115, 1024, 65535);
+        TOKEN = CLIENT_BUILDER.comment("Authentication token. Clients must pass ?token=xxx when connecting.").define("token", "your_secret_token");
         CLIENT_BUILDER.pop();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
     }

@@ -1,15 +1,21 @@
-![LCon](https://socialify.git.ci/VincentZyu233/lcon/image?description=1&font=JetBrains+Mono&forks=1&issues=1&language=1&name=1&owner=1&pulls=1&stargazers=1&theme=Light)
+> **[📖 English](README.md)**
+> **[📖 中文](README.zh-cn.md)**
+
+![lcon](https://socialify.git.ci/VincentZyu233/lcon/image?custom_description=Enables+a+WebSocket+Server+on+the+Minecraft+client+for+remote+command+execution+and+chat+control&description=1&font=JetBrains+Mono&forks=1&issues=1&language=1&logo=https%3A%2F%2Fgithub.com%2FVincentZyu233%2Flcon%2Fblob%2Fmaster%2Fdocs%2Fimages%2Fminecraft-forge.png%3Fraw%3Dtrue&name=1&owner=1&pulls=1&stargazers=1&theme=Light)
 
 # LCon — WebSocket remote control for Minecraft client
 
 > A Forge mod that runs a WebSocket server on the Minecraft **client** (single-player / LAN), allowing external applications to execute commands and interact with the game in real time.
+>
+> 💡 **How it works** — When you play single-player or open to LAN, your client runs an **integrated server** underneath — the same command engine, world ticking, and gameplay loop as a dedicated server. In Minecraft, "single-player", "multiplayer", "LAN", and "server" all run the same server code — there's no essential difference. LCon taps into this integrated server and starts a WebSocket server alongside it, so external tools can control the game without needing a separate dedicated server.
 
 [![Forge 1.20.1](https://img.shields.io/badge/Forge-1.20.1-FF6600?style=for-the-badge)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html)
 [![Java 17](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://adoptium.net/temurin/releases/?version=17)
 [![Gradle 8.1.1](https://img.shields.io/badge/Gradle-8.1.1-02303A?style=for-the-badge&logo=gradle&logoColor=white)](https://gradle.org)
+[![Python Client](https://img.shields.io/badge/Python_Client-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://github.com/VincentZyu233/lcon/releases)
 
-[![Last Commit](https://img.shields.io/github/last-commit/VincentZyu233/lcon?style=for-the-badge&label=Last%20Commit&color=blue)](https://github.com/VincentZyu233/lcon/commits/master)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/VincentZyu233/lcon/build.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=CI%20Status&labelColor=2088FF)](https://github.com/VincentZyu233/lcon/actions)
+[![Last Commit](https://img.shields.io/github/last-commit/VincentZyu233/lcon?style=plastic&label=Last%20Commit&color=6e7681&labelColor=181717)](https://github.com/VincentZyu233/lcon/commits/master)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/VincentZyu233/lcon/build.yml?style=plastic&logo=githubactions&logoColor=white&label=CI%20Status&labelColor=181717)](https://github.com/VincentZyu233/lcon/actions)
 
 ## 🧩 What it does
 
@@ -27,19 +33,52 @@ No Mixin, no coremod, no overwrites — purely event-driven, safe for any modpac
 
 ## 🔌 How to connect
 
+### Using Python (uv)
+
 ```bash
-# Example: connect with Python websocket-client
-python -c "
+uv venv --python 3.13
+uv pip install websocket-client
+uv run python -c "
 import websocket
-ws = websocket.create_connection('ws://localhost:8115')
-print(ws.recv())     # welcome message
-ws.send('[server]/tellraw @a awa!')
+ws = websocket.create_connection('ws://localhost:58115')
+print(ws.recv())     # welcome messages
+ws.send('[server]/say Hello from LCon!')
 print(ws.recv())     # response
 ws.close()
 "
 ```
 
-Or use any WebSocket client ([wscat](https://github.com/websockets/wscat), [koishi-plugin-ws-client](https://koishi.chat), browser DevTools, etc.).
+### Using wscat via npx
+
+```bash
+npx wscat -c ws://localhost:58115
+```
+
+Once connected, you'll receive welcome messages from the server:
+
+```log
+< 200:Welcome to LCon! Have fun! Don't forget to use prefixes with every message you send to me.
+< 200:Valid prefixes:
+< 200:[chat] - send message to Minecraft chat.
+< 200:[server] - execute server-side command.
+< 201:ready.
+```
+
+Then send commands with prefixes (`> ` is what you type, `< ` is the server response):
+
+```powershell
+> [server]/say Hello everyone!
+# (command executed — no response text, but the chat message appears in-game)
+
+> [chat]Hello!
+# (message sent as the player in chat)
+
+> [server]/give @s diamond 64
+# (command executed — diamonds appear in your inventory)
+
+> unknown
+# 400:Error! Send message prefix first! [chat], [message], [system], [client], [server] are valid prefixes.
+```
 
 ## ⚙️ Configuration
 
@@ -48,8 +87,50 @@ File: `.minecraft/config/lcon-client.toml`
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `enable_mod` | boolean | `true` | Enable the WebSocket server |
-| `port` | int | `8115` | WebSocket server port |
-| `token` | string | `""` | Auth token. Clients pass `?token=xxx` on connect. Empty = disabled |
+| `port` | int | `58115` | WebSocket server port |
+| `token` | string | `your_secret_token` | Auth token. Clients pass `?token=xxx` on connect |
+
+## 🐍 Python Client (TUI)
+
+A Textual-based terminal UI with tabbed interface (Console, Commands, Settings, About).
+
+### Quick Start
+
+```bash
+git clone https://github.com/VincentZyu233/lcon.git
+cd lcon
+
+uv venv --python 3.13
+uv pip install textual websocket-client
+
+uv run python client/client.py
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LCON_HOST` | `localhost` | WebSocket server address |
+| `LCON_PORT` | `58115` | WebSocket server port |
+| `LCON_TOKEN` | `your_secret_token` | Authentication token |
+
+**bash (Linux / macOS / WSL / Git Bash):**
+```bash
+LCON_HOST=192.168.1.100 LCON_PORT=58115 LCON_TOKEN=your_secret_token
+uv run python client/client.py
+```
+
+**PowerShell (Windows):**
+```powershell
+$env:LCON_HOST="192.168.1.100"; $env:LCON_PORT="58115"; $env:LCON_TOKEN="your_secret_token"
+uv run python client/client.py
+```
+
+**CMD (Windows):**
+```cmd
+set LCON_HOST=192.168.1.100 && set LCON_PORT=58115 && set LCON_TOKEN=your_secret_token
+uv run python client/client.py
+```
 
 ## 🏗 Build
 
@@ -82,6 +163,6 @@ git commit -m "feat: something; build release"
 | [![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://adoptium.net/temurin/releases/?version=17) | 17 | Runtime |
 | [![Forge](https://img.shields.io/badge/Forge-1.20.1--47.2.19-FF6600?style=flat-square)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html) | 47.2.19 | Mod loader |
 | [![Gradle](https://img.shields.io/badge/Gradle-8.1.1-02303A?style=flat-square&logo=gradle&logoColor=white)](https://gradle.org) | 8.1.1 | Build tool |
-| [![Shadow](https://img.shields.io/badge/Shadow-8.1.1-000000?style=flat-square)](https://imperceptiblethoughts.com/shadow/) | 7.1.0 | Fat-jar plugin |
-| [![Java-WebSocket](https://img.shields.io/badge/Java--WebSocket-1.5.6-000000?style=flat-square)](https://github.com/TooTallNate/Java-WebSocket) | 1.5.6 | WebSocket server (fat-jarred) |
-| [![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/VincentZyu233/lcon/actions) | — | CI/CD |
+| [![Shadow](https://img.shields.io/badge/Shadow-8.1.1-ED8B00?style=flat-square)](https://imperceptiblethoughts.com/shadow/) | 7.1.0 | Fat-jar plugin |
+| [![Java-WebSocket](https://img.shields.io/badge/Java--WebSocket-1.5.6-ED8B00?style=flat-square)](https://github.com/TooTallNate/Java-WebSocket) | 1.5.6 | WebSocket server (fat-jarred) |
+| [![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/VincentZyu233/lcon/actions) | — | GitHub CI/CD |
