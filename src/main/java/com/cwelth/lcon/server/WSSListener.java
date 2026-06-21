@@ -6,19 +6,23 @@ import com.netiq.websocket.WebSocketServer;
 
  */
 import com.cwelth.lcon.Config;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.common.ForgeConfigSpec;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.slf4j.Logger;
 
 import java.net.InetSocketAddress;
 
 public class WSSListener extends WebSocketServer {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private LocalPlayer player;
 
     public WSSListener(int port, LocalPlayer player)
@@ -38,19 +42,19 @@ public class WSSListener extends WebSocketServer {
         if (!configuredToken.isEmpty()) {
             String token = extractQueryParam(clientHandshake.getResourceDescriptor(), "token");
             if (!configuredToken.equals(token)) {
-                webSocket.send("401:Unauthorized - invalid token.");
+                webSocket.send(fmt(Config.EMOJI_UNAUTHORIZED, Config.MSG_UNAUTHORIZED));
                 webSocket.close();
                 return;
             }
         }
-        webSocket.send("200:Welcome to LCon! Have fun! Don't forget to use prefixes with every message you send to me.");
-        webSocket.send("200:Valid prefixes:");
-        webSocket.send("200:[chat] - send message to Minecraft chat.");
-        webSocket.send("200:[message] - display message for player only.");
-        webSocket.send("200:[system] - display system message in chat (for player only).");
-        webSocket.send("200:[client] - execute client-side command.");
-        webSocket.send("200:[server] - execute server-side command.");
-        webSocket.send("201:ready.");
+        webSocket.send(fmt(Config.EMOJI_WELCOME, Config.MSG_WELCOME));
+        webSocket.send(fmt(Config.EMOJI_PREFIXES, Config.MSG_PREFIXES));
+        webSocket.send(fmt(Config.EMOJI_CHAT, Config.MSG_CHAT));
+        webSocket.send(fmt(Config.EMOJI_MESSAGE, Config.MSG_MESSAGE));
+        webSocket.send(fmt(Config.EMOJI_SYSTEM, Config.MSG_SYSTEM));
+        webSocket.send(fmt(Config.EMOJI_CLIENT, Config.MSG_CLIENT));
+        webSocket.send(fmt(Config.EMOJI_SERVER, Config.MSG_SERVER));
+        webSocket.send(fmt(Config.EMOJI_READY, Config.MSG_READY));
     }
 
     private static String extractQueryParam(String uri, String param) {
@@ -118,16 +122,26 @@ public class WSSListener extends WebSocketServer {
             }
             return;
         }
-        webSocket.send("400:Error! Send message prefix first! [chat], [message], [system], [client], [server] are valid prefixes.");
+        webSocket.send(fmt(Config.EMOJI_ERROR_PREFIX, Config.MSG_ERROR_PREFIX));
     }
 
     @Override
     public void onError(WebSocket webSocket, Exception e) {
-
+        LOGGER.error(fmt(Config.EMOJI_LOG_ERROR, Config.MSG_LOG_ERROR) + e.getMessage());
+        if (webSocket != null && webSocket.isOpen()) {
+            webSocket.send(fmt(Config.EMOJI_ERROR_INTERNAL, Config.MSG_ERROR_INTERNAL) + e.getMessage());
+        }
     }
 
     @Override
     public void onStart() {
+        LOGGER.info(fmt(Config.EMOJI_LOG_START, Config.MSG_LOG_START) + this.getPort());
+    }
 
+    private static String fmt(ForgeConfigSpec.ConfigValue<String> emojiCfg,
+                               ForgeConfigSpec.ConfigValue<String> msgCfg) {
+        return Config.ENABLE_MESSAGE_EMOJI.get()
+            ? emojiCfg.get() + " " + msgCfg.get()
+            : msgCfg.get();
     }
 }

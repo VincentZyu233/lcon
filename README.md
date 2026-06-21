@@ -5,13 +5,16 @@
 
 # 🎮 LCon — WebSocket remote control for Minecraft client
 
+> 🧩 A Forge mod that runs a WebSocket server on the Minecraft **client** (single-player / LAN), allowing external applications to execute commands and interact with the game in real time.
 <p align="center">
   <img src="logo.png" width="200" alt="LCon logo" />
 </p>
 
-> 🧩 A Forge mod that runs a WebSocket server on the Minecraft **client** (single-player / LAN), allowing external applications to execute commands and interact with the game in real time.
 >
-> 💡 **How it works** — When you play single-player or open to LAN, your client runs an **integrated server** underneath — the same command engine, world ticking, and gameplay loop as a dedicated server. In Minecraft, "single-player", "multiplayer", "LAN", and "server" all run the same server code — there's no essential difference. LCon taps into this integrated server and starts a WebSocket server alongside it, so external tools can control the game without needing a separate dedicated server.
+> 💡 **How it works** — When you play single-player or open to LAN, your client runs an **integrated server** underneath — the same command engine, world ticking, and gameplay loop as a dedicated server. 
+
+> 
+> ☝️🤓 In Minecraft, "single-player", "multiplayer", "LAN", and "server" all run the same server code — there's no essential difference. LCon taps into this integrated server and starts a WebSocket server alongside it, so external tools can control the game without needing a separate dedicated server.
 
 [![Forge 1.20.1](https://img.shields.io/badge/Forge-1.20.1-FF6600?style=for-the-badge)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html)
 [![Java 17](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://adoptium.net/temurin/releases/?version=17)
@@ -136,6 +139,9 @@ File: `.minecraft/config/lcon-client.toml`
 | `port` | int | `58115` | WebSocket server port |
 | `token` | string | `your_secret_token` | Auth token. Clients pass `?token=xxx` on connect |
 | `command_permission_level` | int | `4` | OP level for `[server]` commands (0-4). 4 = full access without enabling cheats |
+| `enable_message_emoji` | boolean | `true` | Master switch for message emoji |
+| `emoji_*` | string | various | 13 per-message emoji settings (e.g. `emoji_welcome`, `emoji_chat`) |
+| `msg_*` | string | various | 13 per-message text settings (e.g. `msg_welcome`, `msg_chat`) |
 
 ## 🐍 Python Client (TUI)
 

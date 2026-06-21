@@ -5,13 +5,16 @@
 
 # 🎮 LCon — 通过 WebSocket 远程控制 Minecraft 客户端
 
+> 🧩 一个 Forge 模组，在 Minecraft **客户端**（单人/局域网）中运行 WebSocket 服务端，让外部应用可以远程执行指令和与游戏实时交互。
 <p align="center">
   <img src="logo.png" width="200" alt="LCon logo" />
 </p>
 
-> 🧩 一个 Forge 模组，在 Minecraft **客户端**（单人/局域网）中运行 WebSocket 服务端，让外部应用可以远程执行指令和与游戏实时交互。
 >
-> 💡 **原理** — 当你游玩单人游戏或开启局域网时，客户端底层会运行一个**集成服务端** — 与专用服务端拥有相同的命令引擎、世界更新循环和游戏逻辑。在 Minecraft 中，"单人游戏"、"多人游戏"、"局域网"、"服务器"底层跑的都是同一套服务端代码，没有本质区别。LCon 接入这个集成服务端，同时启动一个 WebSocket 服务端，让外部工具无需独立服务端即可控制游戏。
+> 💡 **原理** — 当你游玩单人游戏或开启局域网时，客户端底层会运行一个**集成服务端** — 与专用服务端拥有相同的命令引擎、世界更新循环和游戏逻辑。
+
+> 
+> ☝️🤓 在 Minecraft 中，"单人游戏"、"多人游戏"、"局域网"、"服务器"底层跑的都是同一套服务端代码，没有本质区别。LCon 接入这个集成服务端，同时启动一个 WebSocket 服务端，让外部工具无需独立服务端即可控制游戏。
 
 [![Forge 1.20.1](https://img.shields.io/badge/Forge-1.20.1-FF6600?style=for-the-badge)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html)
 [![Java 17](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://adoptium.net/temurin/releases/?version=17)
@@ -136,6 +139,9 @@ uv run python client/main.py
 | `port` | int | `58115` | WebSocket 服务端端口 |
 | `token` | string | `your_secret_token` | 认证令牌。客户端连接时传 `?token=xxx` |
 | `command_permission_level` | int | `4` | `[server]` 指令的 OP 等级 (0-4)。4 = 不开作弊也能执行所有指令 |
+| `enable_message_emoji` | boolean | `true` | 消息 emoji 总开关 |
+| `emoji_*` | string | various | 13 条消息的 emoji 设置（如 `emoji_welcome`、`emoji_chat`） |
+| `msg_*` | string | various | 13 条消息的文本设置（如 `msg_welcome`、`msg_chat`） |
 
 ## 🐍 Python 客户端 (TUI)
 
