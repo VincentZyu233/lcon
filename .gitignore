@@ -1,4 +1,16 @@
-# Project exclude paths
-/.gradle/
-/build/
-/build/classes/java/main/
+.gradle/
+build/
+run/
+run-data/
+out/
+*.log
+*.ipr
+*.iws
+*.iml
+.idea/
+.vscode/
+bin/
+**/__pycache/
+**/*.pyc/
+**/venv/
+**/.venv/
