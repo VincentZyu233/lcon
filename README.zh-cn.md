@@ -14,7 +14,7 @@
 > 💡 **原理** — 当你游玩单人游戏或开启局域网时，客户端底层会运行一个**集成服务端** — 与专用服务端拥有相同的命令引擎、世界更新循环和游戏逻辑。
 
 > 
-> ☝️🤓 在 Minecraft 中，"单人游戏"、"多人游戏"、"局域网"、"服务器"底层跑的都是同一套服务端代码，没有本质区别。LCon 接入这个集成服务端，同时启动一个 WebSocket 服务端，让外部工具无需独立服务端即可控制游戏。
+> ☝️🤓 在 Minecraft 中，"单人游戏"、"多人游戏"、"局域网联机"、"服务器"底层跑的都是同一套服务端代码，没有本质区别。LCon 接入这个集成服务端，同时启动一个 WebSocket 服务端，让外部工具无需独立服务端即可控制游戏。
 
 [![Forge 1.20.1](https://img.shields.io/badge/Forge-1.20.1-FF6600?style=for-the-badge)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html)
 [![Java 17](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://adoptium.net/temurin/releases/?version=17)

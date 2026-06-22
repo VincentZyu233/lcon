@@ -1,3 +1,9 @@
+// 🧩 LCon — 客户端事件处理器
+// 📄 监听 Minecraft 客户端事件，管理 WS 服务端的生命周期：
+//   - PlayerTickEvent  → 启动 / 更新 WebSocket 服务端
+//   - LoggingOut      → 关闭 WebSocket 服务端
+//   - ChatReceived    → 将聊天消息广播给所有 WS 客户端
+
 package com.cwelth.lcon.setup;
 
 
@@ -28,6 +34,7 @@ import java.io.IOException;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = LCon.MODID)
 public class EventHandlersModClient {
     @SubscribeEvent
+    // 🎨 创造模式标签页（暂无自定义物品，保留为空）
     public static void addCreativeTab(BuildCreativeModeTabContentsEvent event) {
         if(event.getTabKey() == CreativeModeTabs.INGREDIENTS)
         {
@@ -36,18 +43,24 @@ public class EventHandlersModClient {
     }
 
     @SubscribeEvent
+    // 🕐 玩家每 tick 触发一次 — 用于管理 WS 服务端生命周期
+    // ⚠️ 局域网联机时，其他玩家的 RemotePlayer 也会触发此事件
+    //    必须用 instanceof 跳过，否则强转 LocalPlayer 会 ClassCastException
     public static void clientTick(TickEvent.PlayerTickEvent event) throws IOException {
         if(!event.player.level().isClientSide) return;
+        // 👤 跳过远程玩家（局域网加入的朋友），只处理本地玩家
         if (!(event.player instanceof LocalPlayer player)) return;
         if(player != null)
         {
             if(Config.ENABLE_MOD.get())
             {
+                // 🚀 首次进入世界 → 创建 WS 服务端并启动
                 if(LCon.wss == null)
                 {
                     LCon.wss = new WSSListener(Config.PORT.get(), player);
                     LCon.wss.start();
                 } else
+                    // 🔄 已存在 → 更新玩家引用（防止过期）
                     LCon.wss.updatePlayer(player);
 
             }
@@ -55,6 +68,7 @@ public class EventHandlersModClient {
     }
 
     @SubscribeEvent
+    // 🚪 玩家登出时调用 — 关闭 WS 服务端
     public void logOut(ClientPlayerNetworkEvent.LoggingOut event){
         if(event.getConnection() == null) return;
         if(LCon.wss != null) {
@@ -68,6 +82,7 @@ public class EventHandlersModClient {
     }
 
     @SubscribeEvent
+    // 💬 收到聊天消息时调用 — 广播给所有连接的 WS 客户端
     public static void getChatMessage(ClientChatReceivedEvent event) throws IOException {
         if(LCon.wss != null)
         {
