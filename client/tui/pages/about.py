@@ -1,7 +1,7 @@
 from textual.widgets import Markdown
 from textual.containers import Vertical
 from textual.widget import Widget
-from .css import load_css
+from ..css import load_css
 
 
 class AboutTab(Widget):

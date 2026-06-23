@@ -1,7 +1,7 @@
 from textual.widgets import Input, Button, Static
 from textual.containers import Vertical, Horizontal
 from textual.widget import Widget
-from .css import load_css
+from ..css import load_css
 
 
 class SettingsTab(Widget):

@@ -1,9 +1,9 @@
-CommandsTab {
+PrefixesTab {
     height: 1fr;
     padding: 1;
 }
 
-#commands-title {
+#prefixes-title {
     margin-bottom: 1;
 }
 

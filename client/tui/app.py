@@ -2,10 +2,10 @@ from textual.app import App
 from textual.widgets import Header, Footer, TabbedContent, TabPane
 from textual.binding import Binding
 
-from .console import ConsoleTab
-from .commands import CommandsTab
-from .settings import SettingsTab
-from .about import AboutTab
+from .pages.console import ConsoleTab
+from .pages.prefixes import PrefixesTab
+from .pages.settings import SettingsTab
+from .pages.about import AboutTab
 from wsclient import WSClient
 
 
@@ -13,7 +13,6 @@ class LConApp(App):
     TITLE = "LCon Client"
     BINDINGS = [
         Binding("ctrl+q", "quit", "Quit"),
-        Binding("ctrl+tab", "next_tab", "Next Tab"),
     ]
 
     def __init__(
@@ -46,26 +45,20 @@ class LConApp(App):
                     log_buffer=self._log_buffer,
                     auto_mode=self._auto_mode,
                 )
-            with TabPane("Commands", id="commands-pane"):
-                yield CommandsTab()
+            with TabPane("Prefixes", id="prefixes-pane"):
+                yield PrefixesTab()
             with TabPane("Settings", id="settings-pane"):
                 yield SettingsTab()
             with TabPane("About", id="about-pane"):
                 yield AboutTab()
         yield Footer()
 
-    def action_next_tab(self):
-        tabs = self.query_one(TabbedContent)
-        tabs.active = (
-            tabs.active[1:] + tabs.active[:1] if len(tabs.active) > 1 else tabs.active
-        )
-
     def on_mount(self):
         self._update_settings_fields()
         self._do_connect(self._default_host, self._default_port, self._default_token)
 
     def _on_ws_message(self, message):
-        self.call_from_thread(self._add_console_log, f"[white]📩 {message}[/white]")
+        self.call_from_thread(self._add_console_log, f"< {message}")
 
     def _on_ws_error(self, error):
         self._connecting = False

@@ -3,7 +3,7 @@ from textual.containers import Horizontal
 from textual.widget import Widget
 from textual.binding import Binding
 from textual.suggester import Suggester
-from .css import load_css
+from ..css import load_css
 
 
 class PrefixSuggester(Suggester):
@@ -30,6 +30,7 @@ SPINNER_CHARS = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", 
 class ConsoleTab(Widget):
     PREFIXES = ["server", "client", "chat", "message", "system"]
     PREFIX_LABELS = ["SERVER", "CLIENT", "CHAT", "MESSAGE", "SYSTEM"]
+    PREFIX_EMOJIS = ["🌐", "🖥️", "💬", "📩", "🔔"]
 
     DEFAULT_CSS = load_css("console")
 
@@ -54,6 +55,7 @@ class ConsoleTab(Widget):
 
     def compose(self):
         with Horizontal(id="top-bar"):
+            yield Static(id="ws-status")
             yield Button("Copy", id="copy", variant="default")
             yield Button("SERVER", id="mode", variant="default")
             yield Button("Clear", id="clear", variant="default")
@@ -130,10 +132,27 @@ class ConsoleTab(Widget):
     def _update_ui(self):
         prefix = self.PREFIXES[self._prefix_idx]
         label = self.PREFIX_LABELS[self._prefix_idx]
+        emoji = self.PREFIX_EMOJIS[self._prefix_idx]
         try:
-            self.query_one("#prefix-label", Static).update(f"[{prefix}] {label}")
+            self.query_one("#prefix-label", Static).update(
+                f"[dim]prefix[/dim]\n{emoji}\n[{prefix}] {label}"
+            )
             self.query_one("#mode", Button).label = label
             self.query_one("#mode", Button).update(label)
+        except Exception:
+            pass
+        try:
+            status = self._status
+            if status == "connected":
+                emoji = "🟢"
+                label = "Connected"
+            elif status == "connecting":
+                emoji = SPINNER_CHARS[self._spinner_idx]
+                label = "Connecting"
+            else:
+                emoji = "🔴"
+                label = "Disconnected"
+            self.query_one("#ws-status", Static).update(f"{emoji}\n{label}")
         except Exception:
             pass
 
