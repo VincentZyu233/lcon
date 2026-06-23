@@ -23,6 +23,9 @@ bin/
 **/venv/
 **/.venv/
 
+# 🔐 ---- Environment & Config ----
+**/.env
+
 # 🗑️ ---- Temp ----
 **/temp/
 **tmp/

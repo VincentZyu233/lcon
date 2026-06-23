@@ -25,10 +25,10 @@ public class LCon
     // 🏗️ 构造函数 — Forge 加载模组时自动调用
     public LCon()
     {
-        // ⚙️ 注册客户端配置（生成 lcon-client.toml）
+        // ⚙️ 注册客户端配置（生成 lcon-ws-server.toml）
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_CONFIG);
         // 📂 从磁盘加载配置文件
-        Config.loadConfig(Config.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve(MODID + "-client.toml"));
+        Config.loadConfig(Config.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve(MODID + "-ws-server.toml"));
         // 🚀 初始化事件处理器
         MainSetup.setup();
     }

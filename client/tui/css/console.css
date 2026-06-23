@@ -3,6 +3,26 @@ ConsoleTab {
     layout: vertical;
 }
 
+#top-bar {
+    height: 3;
+    dock: top;
+    align: center middle;
+    background: $surface;
+}
+
+#top-bar > Button {
+    margin: 0 1;
+    min-width: 10;
+}
+
+#copy,
+#mode,
+#clear {
+    background: $warning;
+    color: $text;
+    text-style: bold;
+}
+
 #log {
     height: 1fr;
 }
@@ -29,18 +49,4 @@ ConsoleTab {
     width: 12;
 }
 
-#mode-bar {
-    height: 1;
-    dock: bottom;
-    background: $surface;
-    color: $text;
-    padding: 0 1;
-}
 
-#mode-bar.auto-on {
-    color: $success;
-}
-
-#mode-bar.auto-off {
-    color: $warning;
-}

@@ -22,12 +22,18 @@ class LConApp(App):
         port=58115,
         token="your_secret_token",
         mod_version="unknown",
+        soft_wrap=True,
+        log_buffer=1000,
+        auto_mode=True,
     ):
         super().__init__()
         self._default_host = host
         self._default_port = port
         self._default_token = token
         self._mod_version = mod_version
+        self._soft_wrap = soft_wrap
+        self._log_buffer = log_buffer
+        self._auto_mode = auto_mode
         self.ws: WSClient | None = None
         self._connecting = False
 
@@ -35,7 +41,11 @@ class LConApp(App):
         yield Header()
         with TabbedContent():
             with TabPane("Console", id="console-pane"):
-                yield ConsoleTab()
+                yield ConsoleTab(
+                    soft_wrap=self._soft_wrap,
+                    log_buffer=self._log_buffer,
+                    auto_mode=self._auto_mode,
+                )
             with TabPane("Commands", id="commands-pane"):
                 yield CommandsTab()
             with TabPane("Settings", id="settings-pane"):

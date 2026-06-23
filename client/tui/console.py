@@ -34,22 +34,36 @@ class ConsoleTab(Widget):
     DEFAULT_CSS = load_css("console")
 
     BINDINGS = [
-        Binding("ctrl+a", "toggle_auto", "Auto"),
         Binding("ctrl+m", "cycle_prefix", "Mode"),
-        Binding("ctrl+slash", "toggle_auto", "Slash"),
     ]
 
-    def __init__(self):
+    def __init__(
+        self,
+        soft_wrap: bool = True,
+        log_buffer: int = 1000,
+        auto_mode: bool = True,
+    ):
         super().__init__()
+        self._soft_wrap = soft_wrap
+        self._log_buffer = log_buffer
         self._prefix_idx = 0
-        self._auto_on = True
+        self._auto_on = auto_mode
         self._status = "connecting"
         self._spinner_idx = 0
         self._spinner_timer = None
 
     def compose(self):
-        yield RichLog(id="log", highlight=True, markup=True, max_lines=10000)
-        yield Static(id="mode-bar")
+        with Horizontal(id="top-bar"):
+            yield Button("Copy", id="copy", variant="default")
+            yield Button("SERVER", id="mode", variant="default")
+            yield Button("Clear", id="clear", variant="default")
+        yield RichLog(
+            id="log",
+            highlight=True,
+            markup=True,
+            wrap=self._soft_wrap,
+            max_lines=self._log_buffer,
+        )
         with Horizontal(id="input-row"):
             yield Static(id="prefix-label")
             yield PrefixInput(id="input", placeholder="Type a command...")
@@ -72,14 +86,30 @@ class ConsoleTab(Widget):
     def on_button_pressed(self, event):
         if event.button.id == "send":
             self._send_message()
+        elif event.button.id == "mode":
+            self._cycle_prefix()
+        elif event.button.id == "copy":
+            self._copy_log()
+        elif event.button.id == "clear":
+            self.query_one("#log", RichLog).clear()
+            self.add_log("[dim]🧹 Log cleared[/dim]")
+
+    def _copy_log(self):
+        from rich.segment import Segment
+
+        try:
+            log = self.query_one("#log", RichLog)
+            text = "".join(
+                segment.text or "" for strip in log.lines for segment in strip
+            )
+            self.app.copy_to_clipboard(text)
+            self.notify(f"Copied {len(text)} characters to clipboard")
+        except Exception:
+            pass
 
     def _cycle_prefix(self, direction=1):
         count = len(self.PREFIXES)
         self._prefix_idx = (self._prefix_idx + direction) % count
-        self._update_ui()
-
-    def _toggle_auto(self):
-        self._auto_on = not self._auto_on
         self._update_ui()
 
     def set_connection_status(self, status):
@@ -101,25 +131,9 @@ class ConsoleTab(Widget):
         prefix = self.PREFIXES[self._prefix_idx]
         label = self.PREFIX_LABELS[self._prefix_idx]
         try:
-            self.query_one("#prefix-label", Static).update(f"[{prefix}]")
-        except Exception:
-            pass
-
-        mode_part = f"Mode: {label} | Auto: {'ON' if self._auto_on else 'OFF'}"
-
-        if self._status == "connecting":
-            spinner = SPINNER_CHARS[self._spinner_idx]
-            status_line = f"▸ {spinner} Connecting... | {mode_part}"
-        elif self._status == "connected":
-            status_line = f"▸ 🟢 Connected | {mode_part}"
-        else:
-            status_line = f"▸ 🔴 Disconnected | {mode_part}"
-
-        try:
-            mode_bar = self.query_one("#mode-bar", Static)
-            mode_bar.update(status_line)
-            mode_bar.remove_class("auto-on", "auto-off")
-            mode_bar.add_class("auto-on" if self._auto_on else "auto-off")
+            self.query_one("#prefix-label", Static).update(f"[{prefix}] {label}")
+            self.query_one("#mode", Button).label = label
+            self.query_one("#mode", Button).update(label)
         except Exception:
             pass
 
