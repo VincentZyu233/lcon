@@ -215,8 +215,8 @@ git commit -m "feat: something; build release"
 
 | Dependency | Version | Description |
 |:---|---:|:---|
-| [![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://adoptium.net/temurin/releases/?version=17) | 17 | Runtime |
-| [![Forge](https://img.shields.io/badge/Forge-1.20.1--47.2.19-FF6600?style=flat-square)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html) | 47.2.19 | Mod loader |
+| [![Java 17](https://img.shields.io/badge/Java-17-ED8B00?style=flat-square&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTIwIDNINHYxMGMwIDIuMjEgMS43OSA0IDQgNGg2YzIuMjEgMCA0LTEuNzkgNC00di0zaDJjMS4xMSAwIDItLjg5IDItMlY1YzAtMS4xMS0uODktMi0yLTJ6bTAgNWgtMlY1aDJ2M3pNMiAyMWgxOHYtMkgydjJ6IiBmaWxsPSIjZmZmIi8+PC9zdmc+)](https://adoptium.net/temurin/releases/?version=17) | 17 | Runtime |
+| [![Forge 1.20.1](https://img.shields.io/badge/Forge-1.20.1-FF6600?style=flat-square&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHBhdGggZD0iTTI3LDIwIEwyMywyMSBMOCwyMSBMMTMsMjYgTDE5LDMwIEwyOSwzMSBMMjgsMzYgTDI0LDM4IEwyMiw0MyBMMjIsNDQgTDI4LDQ0IEwyOSw0MyBMNDIsNDMgTDQzLDQ0IEw0OSw0NCBMNDgsMzkgTDQyLDM2IEw0MiwyOSBMNDcsMjUgTDUwLDIzIEw1NywyMSBMNTcsMjAgWiIgZmlsbD0iI2ZmZiIgdHJhbnNmb3JtPSJtYXRyaXgoMS40IDAgMCAxLjQgLTEzIC0xMikiLz48L3N2Zz4=)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html) | 47.2.19 | Mod loader |
 | [![Gradle](https://img.shields.io/badge/Gradle-8.1.1-02303A?style=flat-square&logo=gradle&logoColor=white)](https://gradle.org) | 8.1.1 | Build tool |
 | [![Shadow](https://img.shields.io/badge/Shadow-8.1.1-ED8B00?style=flat-square)](https://imperceptiblethoughts.com/shadow/) | 7.1.0 | Fat-jar plugin |
 | [![Java-WebSocket](https://img.shields.io/badge/Java--WebSocket-1.5.6-ED8B00?style=flat-square)](https://github.com/TooTallNate/Java-WebSocket) | 1.5.6 | WebSocket server (fat-jarred) |
