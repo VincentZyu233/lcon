@@ -73,6 +73,21 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<String> EMOJI_LOG_ERROR;
     public static ForgeConfigSpec.ConfigValue<String> MSG_LOG_ERROR;
 
+    // ================ 🌐 Mclistener 协议配置 ================
+    // 🧠 新端口 60626，与旧前缀协议端口 58115 完全隔离
+    //    参考：MCDR / CS2 / LeviLamina 同类插件的配置风格
+
+    public static ForgeConfigSpec.BooleanValue ENABLE_MCLISTENER;            // 🌐 总开关
+    public static ForgeConfigSpec.ConfigValue<String> MCLISTENER_HOST;       // 🖧 监听地址
+    public static ForgeConfigSpec.IntValue MCLISTENER_PORT;                  // 🔌 监听端口
+    public static ForgeConfigSpec.ConfigValue<String> MCLISTENER_TOKEN;      // 🔑 认证令牌
+    public static ForgeConfigSpec.BooleanValue ENABLE_PLAYER_JOIN_BROADCAST;  // 📢 玩家加入广播
+    public static ForgeConfigSpec.BooleanValue ENABLE_PLAYER_LEAVE_BROADCAST; // 📢 玩家离开广播
+    public static ForgeConfigSpec.BooleanValue ENABLE_PLAYER_CHAT_BROADCAST;  // 💬 聊天广播
+    public static ForgeConfigSpec.BooleanValue ENABLE_RECEIVE_GROUP_MESSAGE;  // 📩 接收群消息
+    public static ForgeConfigSpec.ConfigValue<String> GROUP_MESSAGE_FORMAT;  // ✏️ 群消息游戏内显示格式
+    public static ForgeConfigSpec.ConfigValue<String> EXEC_COMMAND_MODE;     // 🎮 远程指令模式：disabled | client
+
     private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
     public static ForgeConfigSpec CLIENT_CONFIG;
 
@@ -137,6 +152,52 @@ public class Config {
         CLIENT_BUILDER.pop();
 
         CLIENT_BUILDER.pop(); // messages
+
+        // 🌐 Mclistener 协议配置
+        CLIENT_BUILDER.comment("Mclistener protocol settings (port 60626, JSON protocol for Koishi client)").push("mclistener");
+
+        ENABLE_MCLISTENER = CLIENT_BUILDER
+            .comment("🌐 Enable the mclistener protocol WebSocket server (独立端口，与旧前缀协议互不干扰)")
+            .define("enable", true);
+
+        MCLISTENER_HOST = CLIENT_BUILDER
+            .comment("🖧 Mclistener WS server listen address (0.0.0.0 = all interfaces)")
+            .define("host", "0.0.0.0");
+
+        MCLISTENER_PORT = CLIENT_BUILDER
+            .comment("🔌 Mclistener WS server port (default 60626)")
+            .defineInRange("port", 60626, 1024, 65535);
+
+        MCLISTENER_TOKEN = CLIENT_BUILDER
+            .comment("🔑 Auth token for mclistener connections. Empty = no auth. Clients pass via ?token=xxx")
+            .define("token", "");
+
+        ENABLE_PLAYER_JOIN_BROADCAST = CLIENT_BUILDER
+            .comment("📢 Broadcast player join events via mclistener ({\\\"type\\\":\\\"player_join\\\", ...})")
+            .define("enable_player_join_broadcast", true);
+
+        ENABLE_PLAYER_LEAVE_BROADCAST = CLIENT_BUILDER
+            .comment("📢 Broadcast player leave events via mclistener ({\\\"type\\\":\\\"player_leave\\\", ...})")
+            .define("enable_player_leave_broadcast", true);
+
+        ENABLE_PLAYER_CHAT_BROADCAST = CLIENT_BUILDER
+            .comment("💬 Broadcast player chat messages via mclistener ({\\\"type\\\":\\\"player_chat\\\", ...})")
+            .define("enable_player_chat_broadcast", true);
+
+        ENABLE_RECEIVE_GROUP_MESSAGE = CLIENT_BUILDER
+            .comment("📩 Receive chat_platform_to_server messages and relay to in-game chat")
+            .define("enable_receive_group_message", true);
+
+        GROUP_MESSAGE_FORMAT = CLIENT_BUILDER
+            .comment("✏️ In-game display format for group messages. Placeholders: {group_id} {group_name} {nickname} {message}")
+            .define("group_message_format", "§6§l[{group_name}]§r §7({group_id})§r §a§o{nickname}§r§f: {message}");
+
+        EXEC_COMMAND_MODE = CLIENT_BUILDER
+            .comment("🎮 Remote command execution mode: disabled = off, client = execute via player.connection.sendCommand()")
+            .define("exec_command_mode", "disabled");
+
+        CLIENT_BUILDER.pop(); // mclistener
+
         CLIENT_CONFIG = CLIENT_BUILDER.build();
     }
 

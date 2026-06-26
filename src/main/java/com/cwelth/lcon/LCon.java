@@ -12,6 +12,8 @@
 
 package com.cwelth.lcon;
 
+import com.cwelth.lcon.mclistener.CommandTracker;
+import com.cwelth.lcon.mclistener.MclistenerWSS;
 import com.cwelth.lcon.server.WSSListener;
 import com.cwelth.lcon.setup.MainSetup;
 import com.mojang.logging.LogUtils;
@@ -31,6 +33,13 @@ public class LCon
     //     - 创建：第一次 clientTick 事件（进入世界时）
     //     - 销毁：player LoggingOut 事件（退出世界时）
     public static WSSListener wss = null;
+
+    // 🌐 Mclistener 协议的 WebSocket 服务端（独立端口 60626）
+    // 🧠 与 wss 完全隔离，各自有独立端口、协议和客户端
+    public static MclistenerWSS mclistenerWss = null;
+
+    // 🎯 指令输出追踪器（用于 execute_command → command_result）
+    public static CommandTracker commandTracker = null;
 
     // 🏗️ 构造函数 — Forge 通过 @Mod 注解自动发现并调用
     // ⏱️ 在游戏主菜单加载时就会执行（早于进入世界）
