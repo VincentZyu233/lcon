@@ -136,6 +136,8 @@ public class CommandTracker {
         LOGGER.debug("🧹 [CommandTracker] 已清理客户端 {} 的所有追踪", ws.getRemoteSocketAddress());
     }
 
+    // 🔍 检查当前是否仍有未完成的指令追踪
+    // 📝 用于 single 模式下拒绝新的并发 execute_command
     public boolean hasPendingCommands() {
         return entries.values().stream().anyMatch(entry -> !entry.done);
     }
@@ -166,6 +168,8 @@ public class CommandTracker {
         }
     }
 
+    // 🎯 获取 single 模式下当前唯一的活动追踪条目
+    // 📝 若所有条目都已完成，则返回 null
     private TrackEntry getSingleActiveEntry() {
         for (TrackEntry entry : entries.values()) {
             if (!entry.done) {
@@ -175,6 +179,8 @@ public class CommandTracker {
         return null;
     }
 
+    // 🧹 过滤明显不应计入 command_result 的聊天消息
+    // 📝 当前排除：普通玩家聊天、玩家加入提示、玩家离开提示
     private boolean shouldIgnoreMessage(String text) {
         if (text == null || text.isBlank()) return true;
         if (text.startsWith("<") && text.contains("> ")) return true;

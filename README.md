@@ -182,8 +182,22 @@ File: `.minecraft/config/lcon-ws-server.toml`
 | `enable_message_emoji` | boolean | `true` | Master switch for message emoji |
 | `emoji_*` | string | various | 13 per-message emoji settings (e.g. `emoji_welcome`, `emoji_chat`) |
 | `msg_*` | string | various | 13 per-message text settings (e.g. `msg_welcome`, `msg_chat`) |
+| `[mclistener].enable` | boolean | `true` | Enable the mclistener JSON WebSocket server on port `60626` |
+| `[mclistener].host` | string | `0.0.0.0` | Listen address for the mclistener server |
+| `[mclistener].port` | int | `60626` | Port for the mclistener server |
+| `[mclistener].token` | string | `""` | Auth token for mclistener. Empty = no auth |
+| `[mclistener].enable_player_join_broadcast` | boolean | `true` | Broadcast `player_join` events to mclistener clients |
+| `[mclistener].enable_player_leave_broadcast` | boolean | `true` | Broadcast `player_leave` events to mclistener clients |
+| `[mclistener].enable_player_chat_broadcast` | boolean | `true` | Broadcast `player_chat` events to mclistener clients |
+| `[mclistener].player_chat_capture_mode` | string | `event` | Player chat capture mode: `event` (recommended), `text`, or `both` |
+| `[mclistener].enable_receive_group_message` | boolean | `true` | Accept `chat_platform_to_server` messages and relay them in-game |
+| `[mclistener].group_message_format` | string | `§6§l[{group_name}]§r §7({group_id})§r §a§o{nickname}§r§f: {message}` | In-game format for relayed group messages |
+| `[mclistener].exec_command_mode` | string | `disabled` | Remote command execution mode: `disabled` or `client` |
+| `[mclistener].command_tracking_mode` | string | `single` | Command tracking mode: `single` (recommended) or `parallel` (experimental, may be unstable or produce mixed results) |
 
 > 💡 When using the Python TUI client, set `serializer_mode = "json"` in `lcon-ws-server.toml` for best compatibility.
+>
+> 💡 For mclistener command execution, keep `command_tracking_mode = "single"` unless you explicitly want best-effort parallel tracking.
 
 ## 🏗 Build
 

@@ -182,8 +182,22 @@ uv run python client/main.py
 | `enable_message_emoji` | boolean | `true` | 消息 emoji 总开关 |
 | `emoji_*` | string | various | 13 条消息的 emoji 设置（如 `emoji_welcome`、`emoji_chat`） |
 | `msg_*` | string | various | 13 条消息的文本设置（如 `msg_welcome`、`msg_chat`） |
+| `[mclistener].enable` | boolean | `true` | 启用 `60626` 端口的 mclistener JSON WebSocket 服务端 |
+| `[mclistener].host` | string | `0.0.0.0` | mclistener 服务端监听地址 |
+| `[mclistener].port` | int | `60626` | mclistener 服务端端口 |
+| `[mclistener].token` | string | `""` | mclistener 认证令牌。空字符串表示不校验 |
+| `[mclistener].enable_player_join_broadcast` | boolean | `true` | 向 mclistener 客户端广播 `player_join` 事件 |
+| `[mclistener].enable_player_leave_broadcast` | boolean | `true` | 向 mclistener 客户端广播 `player_leave` 事件 |
+| `[mclistener].enable_player_chat_broadcast` | boolean | `true` | 向 mclistener 客户端广播 `player_chat` 事件 |
+| `[mclistener].player_chat_capture_mode` | string | `event` | 玩家聊天捕获模式：`event`（推荐）、`text` 或 `both` |
+| `[mclistener].enable_receive_group_message` | boolean | `true` | 接收 `chat_platform_to_server` 消息并转发到游戏内 |
+| `[mclistener].group_message_format` | string | `§6§l[{group_name}]§r §7({group_id})§r §a§o{nickname}§r§f: {message}` | 群消息转发到游戏内时的显示格式 |
+| `[mclistener].exec_command_mode` | string | `disabled` | 远程指令执行模式：`disabled` 或 `client` |
+| `[mclistener].command_tracking_mode` | string | `single` | 指令追踪模式：`single`（推荐）或 `parallel`（实验性，可能不稳定或串线） |
 
 > 💡 使用 Python TUI 客户端时，请在 `lcon-ws-server.toml` 中设置 `serializer_mode = "json"` 以获得最佳兼容性。
+>
+> 💡 对于 mclistener 的远程指令执行，除非你明确需要 best-effort 并行追踪，否则建议保持 `command_tracking_mode = "single"`。
 
 ## 🏗 构建
 
