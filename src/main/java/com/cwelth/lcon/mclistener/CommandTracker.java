@@ -12,6 +12,7 @@
 
 package com.cwelth.lcon.mclistener;
 
+import com.cwelth.lcon.Config;
 import com.cwelth.lcon.LCon;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
@@ -56,18 +57,44 @@ public class CommandTracker {
         }
     }
 
+    public enum TrackStartStatus {
+        STARTED,
+        REJECTED_BUSY
+    }
+
+    public record TrackStartResult(TrackStartStatus status, String message) {}
+
     // 🎯 开始追踪一条指令
     // 📝 在 onMessage 中收到 execute_command 时调用
-    public void track(WebSocket ws, String requestId, String command) {
+    public TrackStartResult track(WebSocket ws, String requestId, String command) {
+        String trackingMode = Config.COMMAND_TRACKING_MODE.get();
+        if ("single".equals(trackingMode) && hasPendingCommands()) {
+            LOGGER.warn("⛔ [CommandTracker] 单线程模式下拒绝并发指令: request_id={}, command=/{}", requestId, command);
+            return new TrackStartResult(TrackStartStatus.REJECTED_BUSY, "409:another command is still running");
+        }
+
         entries.put(requestId, new TrackEntry(ws, requestId, command));
         LOGGER.debug("📝 [CommandTracker] 开始追踪: request_id={}, command=/{}", requestId, command);
+        return new TrackStartResult(TrackStartStatus.STARTED, "");
     }
 
     // 💬 收到聊天消息时调用
     // 📝 在 ClientChatReceivedEvent 处理器中调用
     public void onChatMessage(String text) {
         if (entries.isEmpty()) return;
+        if (shouldIgnoreMessage(text)) return;
+
         long now = System.currentTimeMillis();
+
+        if ("single".equals(Config.COMMAND_TRACKING_MODE.get())) {
+            TrackEntry activeEntry = getSingleActiveEntry();
+            if (activeEntry != null) {
+                activeEntry.outputs.add(text);
+                activeEntry.lastOutputMs = now;
+            }
+            return;
+        }
+
         for (TrackEntry entry : entries.values()) {
             if (!entry.done) {
                 entry.outputs.add(text);
@@ -109,6 +136,10 @@ public class CommandTracker {
         LOGGER.debug("🧹 [CommandTracker] 已清理客户端 {} 的所有追踪", ws.getRemoteSocketAddress());
     }
 
+    public boolean hasPendingCommands() {
+        return entries.values().stream().anyMatch(entry -> !entry.done);
+    }
+
     // 📤 发送 command_result 给客户端
     private void sendResult(TrackEntry entry) {
         // 合并输出行
@@ -133,5 +164,23 @@ public class CommandTracker {
         } catch (Exception e) {
             LOGGER.error("💥 [CommandTracker] 发送结果失败: {}", e.getMessage());
         }
+    }
+
+    private TrackEntry getSingleActiveEntry() {
+        for (TrackEntry entry : entries.values()) {
+            if (!entry.done) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    private boolean shouldIgnoreMessage(String text) {
+        if (text == null || text.isBlank()) return true;
+        if (text.startsWith("<") && text.contains("> ")) return true;
+
+        String lower = text.toLowerCase();
+        return lower.contains(" joined the game")
+            || lower.contains(" left the game");
     }
 }

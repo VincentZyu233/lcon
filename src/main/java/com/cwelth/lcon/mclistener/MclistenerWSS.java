@@ -16,7 +16,6 @@ package com.cwelth.lcon.mclistener;
 
 import com.cwelth.lcon.Config;
 import com.cwelth.lcon.LCon;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
@@ -116,6 +115,8 @@ public class MclistenerWSS extends WebSocketServer {
         String mode = Config.EXEC_COMMAND_MODE.get();
         if ("disabled".equals(mode)) {
             LOGGER.warn("🎮 [MclistenerWSS] 远程指令执行已禁用（exec_command_mode = disabled）");
+            sendCommandResult(ws, getJsonString(json, "request_id"), getJsonString(json, "command"), false,
+                "", "403:remote command execution is disabled");
             return;
         }
 
@@ -123,17 +124,31 @@ public class MclistenerWSS extends WebSocketServer {
         String command = getJsonString(json, "command");
         if (command.startsWith("/")) command = command.substring(1);
 
-        // 📝 注册指令输出追踪
-        LCon.commandTracker.track(ws, reqId, command);
+        if (reqId.isBlank() || command.isBlank()) {
+            sendCommandResult(ws, reqId, command, false, "", "400:request_id and command are required");
+            return;
+        }
 
         // 🎮 在主线程执行指令
         String cmdToExec = command;
         Minecraft.getInstance().execute(() -> {
             if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.connection != null) {
+                if (LCon.commandTracker == null) {
+                    sendCommandResult(ws, reqId, cmdToExec, false, "", "500:command tracker is unavailable");
+                    return;
+                }
+
+                CommandTracker.TrackStartResult trackResult = LCon.commandTracker.track(ws, reqId, cmdToExec);
+                if (trackResult.status() != CommandTracker.TrackStartStatus.STARTED) {
+                    sendCommandResult(ws, reqId, cmdToExec, false, "", trackResult.message());
+                    return;
+                }
+
                 Minecraft.getInstance().player.connection.sendCommand(cmdToExec);
                 LOGGER.info("🎮 [MclistenerWSS] 已执行指令: /{} (request_id={})", cmdToExec, reqId);
             } else {
                 LOGGER.warn("🎮 [MclistenerWSS] 玩家连接不可用，无法执行指令: /{}", cmdToExec);
+                sendCommandResult(ws, reqId, cmdToExec, false, "", "503:player connection unavailable");
             }
         });
     }
@@ -177,6 +192,21 @@ public class MclistenerWSS extends WebSocketServer {
         if (ws != null && ws.isOpen()) {
             ws.send(json);
         }
+    }
+
+    private void sendCommandResult(WebSocket ws, String requestId, String command, boolean ok, String output, String error) {
+        if (ws == null || !ws.isOpen()) return;
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "command_result");
+        json.addProperty("request_id", requestId == null ? "" : requestId);
+        json.addProperty("command", command == null ? "" : command);
+        json.addProperty("ok", ok);
+        json.addProperty("output", output == null ? "" : output);
+        if (error != null && !error.isBlank()) {
+            json.addProperty("error", error);
+        }
+        ws.send(json.toString());
     }
 
     // 🛠️ 安全获取 JSON 字符串字段，缺失时返回空字符串

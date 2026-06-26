@@ -9,20 +9,16 @@ package com.cwelth.lcon.setup;
 
 import com.cwelth.lcon.Config;
 import com.cwelth.lcon.LCon;
+import com.cwelth.lcon.mclistener.CommandTracker;
 import com.cwelth.lcon.mclistener.MclistenerWSS;
 import com.cwelth.lcon.server.WSSListener;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentContents;
-import net.minecraft.network.chat.contents.LiteralContents;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -31,11 +27,11 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = LCon.MODID)
 public class EventHandlersModClient {
@@ -189,23 +185,7 @@ public class EventHandlersModClient {
 
         // 🆕 Mclistener 协议广播（player_chat JSON 格式）
         if(Config.ENABLE_MCLISTENER.get() && Config.ENABLE_PLAYER_CHAT_BROADCAST.get() && LCon.mclistenerWss != null) {
-            // 从完整文本中解析玩家名和消息内容
-            // Minecraft 聊天格式通常为 "<PlayerName> message"
-            String playerName = "Unknown";
-            String content = fullText;
-            if(fullText.startsWith("<") && fullText.contains("> ")) {
-                int nameEnd = fullText.indexOf("> ");
-                playerName = fullText.substring(1, nameEnd);
-                content = fullText.substring(nameEnd + 2);
-            }
-            // 排除系统消息（未知玩家名时跳过）
-            if(!"Unknown".equals(playerName)) {
-                JsonObject json = new JsonObject();
-                json.addProperty("type", "player_chat");
-                json.addProperty("player_name", playerName);
-                json.addProperty("content", content);
-                LCon.mclistenerWss.broadcastJson(json.toString());
-            }
+            broadcastPlayerChat(event, fullText);
         }
 
         // ⬇️ 旧前缀协议广播（完全保留不动）
@@ -231,4 +211,69 @@ public class EventHandlersModClient {
             LCon.wss.broadcast("200:" + serialized);
         }
     }
+
+    private static void broadcastPlayerChat(ClientChatReceivedEvent event, String fullText) {
+        String captureMode = Config.PLAYER_CHAT_CAPTURE_MODE.get();
+
+        ChatBroadcastPayload eventPayload = null;
+        ChatBroadcastPayload textPayload = null;
+
+        if ("event".equals(captureMode) || "both".equals(captureMode)) {
+            eventPayload = extractPlayerChatFromEvent(event);
+        }
+        if ("text".equals(captureMode) || ("both".equals(captureMode) && eventPayload == null)) {
+            textPayload = extractPlayerChatFromText(fullText);
+        }
+
+        ChatBroadcastPayload payload = eventPayload != null ? eventPayload : textPayload;
+        if (payload == null) return;
+
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "player_chat");
+        json.addProperty("player_name", payload.playerName());
+        json.addProperty("content", payload.content());
+        if (payload.playerUuid() != null) {
+            json.addProperty("player_uuid", payload.playerUuid().toString());
+        }
+        LCon.mclistenerWss.broadcastJson(json.toString());
+    }
+
+    private static ChatBroadcastPayload extractPlayerChatFromEvent(ClientChatReceivedEvent event) {
+        if (!(event instanceof ClientChatReceivedEvent.Player playerEvent)) {
+            return null;
+        }
+
+        String playerName = playerEvent.getBoundChatType().name().getString();
+        String content = playerEvent.getPlayerChatMessage().signedContent();
+        if (content == null || content.isBlank()) {
+            content = playerEvent.getMessage().getString();
+        }
+
+        if (playerName == null || playerName.isBlank() || content == null || content.isBlank()) {
+            return null;
+        }
+
+        return new ChatBroadcastPayload(playerName, content, playerEvent.getSender());
+    }
+
+    private static ChatBroadcastPayload extractPlayerChatFromText(String fullText) {
+        if (fullText == null || !fullText.startsWith("<") || !fullText.contains("> ")) {
+            return null;
+        }
+
+        int nameEnd = fullText.indexOf("> ");
+        if (nameEnd <= 1 || nameEnd + 2 >= fullText.length()) {
+            return null;
+        }
+
+        String playerName = fullText.substring(1, nameEnd);
+        String content = fullText.substring(nameEnd + 2);
+        if (playerName.isBlank() || content.isBlank()) {
+            return null;
+        }
+
+        return new ChatBroadcastPayload(playerName, content, null);
+    }
+
+    private record ChatBroadcastPayload(String playerName, String content, UUID playerUuid) {}
 }

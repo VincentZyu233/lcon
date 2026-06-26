@@ -84,9 +84,11 @@ public class Config {
     public static ForgeConfigSpec.BooleanValue ENABLE_PLAYER_JOIN_BROADCAST;  // 📢 玩家加入广播
     public static ForgeConfigSpec.BooleanValue ENABLE_PLAYER_LEAVE_BROADCAST; // 📢 玩家离开广播
     public static ForgeConfigSpec.BooleanValue ENABLE_PLAYER_CHAT_BROADCAST;  // 💬 聊天广播
+    public static ForgeConfigSpec.ConfigValue<String> PLAYER_CHAT_CAPTURE_MODE; // 💬 聊天捕获模式：event | text | both
     public static ForgeConfigSpec.BooleanValue ENABLE_RECEIVE_GROUP_MESSAGE;  // 📩 接收群消息
     public static ForgeConfigSpec.ConfigValue<String> GROUP_MESSAGE_FORMAT;  // ✏️ 群消息游戏内显示格式
     public static ForgeConfigSpec.ConfigValue<String> EXEC_COMMAND_MODE;     // 🎮 远程指令模式：disabled | client
+    public static ForgeConfigSpec.ConfigValue<String> COMMAND_TRACKING_MODE; // 🎯 指令追踪模式：single | parallel（parallel 为实验性模式，可能不稳定或串线）
 
     private static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
     public static ForgeConfigSpec CLIENT_CONFIG;
@@ -184,6 +186,10 @@ public class Config {
             .comment("💬 Broadcast player chat messages via mclistener ({\\\"type\\\":\\\"player_chat\\\", ...})")
             .define("enable_player_chat_broadcast", true);
 
+        PLAYER_CHAT_CAPTURE_MODE = CLIENT_BUILDER
+            .comment("💬 Player chat capture mode: event = use ClientChatReceivedEvent.Player only (recommended), text = parse '<PlayerName> message' from rendered text only, both = prefer event and fallback to text parsing")
+            .define("player_chat_capture_mode", "event");
+
         ENABLE_RECEIVE_GROUP_MESSAGE = CLIENT_BUILDER
             .comment("📩 Receive chat_platform_to_server messages and relay to in-game chat")
             .define("enable_receive_group_message", true);
@@ -195,6 +201,10 @@ public class Config {
         EXEC_COMMAND_MODE = CLIENT_BUILDER
             .comment("🎮 Remote command execution mode: disabled = off, client = execute via player.connection.sendCommand()")
             .define("exec_command_mode", "disabled");
+
+        COMMAND_TRACKING_MODE = CLIENT_BUILDER
+            .comment("🎯 Command tracking mode: single = allow only one pending execute_command at a time (recommended), parallel = experimental mode that allows multiple pending commands with best-effort chat-based tracking only and may be unstable / produce mixed results")
+            .define("command_tracking_mode", "single");
 
         CLIENT_BUILDER.pop(); // mclistener
 
